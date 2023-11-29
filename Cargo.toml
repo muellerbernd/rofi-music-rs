@@ -1,7 +1,4 @@
-[workspace]
-members = ["rofi-music-rs"]
-
-[workspace.package]
+[package]
 name = "rofi-music-rs"
 version = "0.1.0"
 authors = ["Bernd Müller <github@muellerbernd.de>"]

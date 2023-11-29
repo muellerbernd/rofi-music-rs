@@ -33,8 +33,8 @@
       });
     })
     // {
-      # overlays.default = final: prev: {
-      #   inherit (self.packages.${final.system}) rofi-music;
-      # };
+      overlays.default = final: prev: {
+        inherit (self.packages.${final.system}) rofi-music;
+      };
     };
 }
