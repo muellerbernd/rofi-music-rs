@@ -34,7 +34,7 @@
     })
     // {
       overlays.default = final: prev: {
-        inherit (self.packages.${final.system}) rofi-music;
+        inherit (self.packages.${final.system}) rofi-music-rs;
       };
     };
 }
