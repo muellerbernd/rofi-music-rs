@@ -1,0 +1,12 @@
+[workspace]
+members = ["rofi-music-rs"]
+
+[workspace.package]
+name = "rofi-music-rs"
+version = "0.1.0"
+authors = ["Bernd Müller <github@muellerbernd.de>"]
+rust-version = "1.67"
+license = "MIT"
+homepage = ""
+repository = ""
+readme = "README.md"
