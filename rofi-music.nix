@@ -21,20 +21,6 @@ rustPlatform.buildRustPackage {
     AppKit
   ];
 
-  # postInstall = ''
-  #   installShellCompletion --cmd atuin \
-  #     --bash <($out/bin/atuin gen-completions -s bash) \
-  #     --fish <($out/bin/atuin gen-completions -s fish) \
-  #     --zsh <($out/bin/atuin gen-completions -s zsh)
-  # '';
-
-  # Additional flags passed to the cargo test binary, see `cargo test -- --help`
-  # checkFlags = [
-  #   # Sync tests require a postgres server
-  #   "--skip=sync"
-  #   "--skip=registration"
-  # ];
-
   meta = with lib; {
     description = "rofi-music-rs";
     homepage = "";
