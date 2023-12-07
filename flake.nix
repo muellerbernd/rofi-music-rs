@@ -25,9 +25,10 @@
         nativeBuildInputs = with pkgs;
           super.nativeBuildInputs
           ++ [
-            cargo-edit
+            cargo
             clippy
             rustfmt
+            rust-analyzer
           ];
         RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
       });
