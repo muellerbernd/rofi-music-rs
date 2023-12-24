@@ -121,14 +121,18 @@ fn show_rofi_menu(players: &Vec<Player>) -> usize {
             .stdin(Stdio::from(echo_cmd.stdout.unwrap()))
             .output()
             .unwrap_or_else(|e| panic!("failed to execute process: {}", e));
-        let selected_line = String::from_utf8(rofi_cmd.stdout)
-            .unwrap()
-            .replace("\n", "")
-            .parse::<u8>()
-            .unwrap();
-        // println!("selected line {:?}", selected_line);
-        usize::from(selected_line)
-    // }
+        if rofi_cmd.stdout.len() > 0 {
+            let selected_line = String::from_utf8(rofi_cmd.stdout)
+                .unwrap()
+                .replace("\n", "")
+                .parse::<u8>()
+                .unwrap_or_else(|e| panic!("failed to read selected line: {}", e));
+            // println!("selected line {:?}", selected_line);
+            usize::from(selected_line)
+        } else {
+            0
+        }
+    }
 }
 
 fn pause(player: &Player) {
