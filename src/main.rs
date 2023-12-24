@@ -99,7 +99,7 @@ fn show_rofi_menu(players: &Vec<Player>, looping: bool) -> usize {
     options.push(String::from("Next Track"));
     options.push(String::from("Prev Track"));
     if looping {
-        options.push(String::from("Quit"))
+        options.push(String::from("quit"))
     }
     // println!("options {:?}", options);
     let echo_cmd = Command::new("echo")
@@ -127,17 +127,23 @@ fn show_rofi_menu(players: &Vec<Player>, looping: bool) -> usize {
         .stdin(Stdio::from(echo_cmd.stdout.unwrap()))
         .output()
         .unwrap_or_else(|e| panic!("failed to execute process: {}", e));
-    println!("{:}",rofi_cmd.status);
-    if rofi_cmd.stdout.len() > 0 {
-        let selected_line = String::from_utf8(rofi_cmd.stdout)
-            .unwrap()
-            .replace("\n", "")
-            .parse::<u8>()
-            .unwrap_or_else(|e| panic!("failed to read selected line: {}", e));
-        // println!("selected line {:?}", selected_line);
-        usize::from(selected_line)
+
+    // status == 1 if exit with escape or closing rofi, else it selected first entry and play_pased
+    // it
+    if rofi_cmd.status.success() {
+        if rofi_cmd.stdout.len() > 0 {
+            let selected_line = String::from_utf8(rofi_cmd.stdout)
+                .unwrap()
+                .replace("\n", "")
+                .parse::<u8>()
+                .unwrap_or_else(|e| panic!("failed to read selected line: {}", e));
+            // println!("selected line {:?}", selected_line);
+            usize::from(selected_line)
+        } else {
+            0
+        }
     } else {
-        0
+        exit(1);
     }
 }
 
@@ -193,6 +199,8 @@ fn prev_track(players: &Vec<Player>) {
         }
     }
 }
+
+//
 fn show_rofi(looping: bool) {
     let player_list = get_playerlist();
     let players: Vec<Player> = get_players(player_list);
@@ -211,8 +219,10 @@ fn show_rofi(looping: bool) {
             _ => (),
         }
     }
+    show_rofi(looping)
 }
 fn main() {
+    // handle cli parameter
     let looping = match env::args()
         .last()
         .expect("No command line arguments found!")
@@ -233,7 +243,4 @@ fn main() {
     };
 
     show_rofi(looping);
-    while looping {
-        show_rofi(looping);
-    }
 }
