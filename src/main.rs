@@ -102,36 +102,35 @@ fn show_rofi_menu(players: &Vec<Player>) -> usize {
         .spawn()
         .unwrap();
     // unsafe {
-        let selected = 0;
-        let prompt = "Select Player";
-        let rofi_cmd = Command::new("rofi")
-            .args([
-                "-dmenu",
-                "-p",
-                format!("{}", prompt).as_str(),
-                "-format",
-                "i",
-                "-selected-row",
-                format!("{}", selected).as_str(),
-                "-me-select-entry",
-                "",
-                "-me-accept-entry",
-                "MousePrimary",
-            ])
-            .stdin(Stdio::from(echo_cmd.stdout.unwrap()))
-            .output()
-            .unwrap_or_else(|e| panic!("failed to execute process: {}", e));
-        if rofi_cmd.stdout.len() > 0 {
-            let selected_line = String::from_utf8(rofi_cmd.stdout)
-                .unwrap()
-                .replace("\n", "")
-                .parse::<u8>()
-                .unwrap_or_else(|e| panic!("failed to read selected line: {}", e));
-            // println!("selected line {:?}", selected_line);
-            usize::from(selected_line)
-        } else {
-            0
-        }
+    let selected = 0;
+    let prompt = "Select Player";
+    let rofi_cmd = Command::new("rofi")
+        .args([
+            "-dmenu",
+            "-p",
+            format!("{}", prompt).as_str(),
+            "-format",
+            "i",
+            "-selected-row",
+            format!("{}", selected).as_str(),
+            "-me-select-entry",
+            "",
+            "-me-accept-entry",
+            "MousePrimary",
+        ])
+        .stdin(Stdio::from(echo_cmd.stdout.unwrap()))
+        .output()
+        .unwrap_or_else(|e| panic!("failed to execute process: {}", e));
+    if rofi_cmd.stdout.len() > 0 {
+        let selected_line = String::from_utf8(rofi_cmd.stdout)
+            .unwrap()
+            .replace("\n", "")
+            .parse::<u8>()
+            .unwrap_or_else(|e| panic!("failed to read selected line: {}", e));
+        // println!("selected line {:?}", selected_line);
+        usize::from(selected_line)
+    } else {
+        0
     }
 }
 
