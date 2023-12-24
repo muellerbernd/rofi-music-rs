@@ -1,3 +1,4 @@
+use std::os::fd::AsFd;
 use std::os::unix::io::AsRawFd;
 use std::os::unix::io::FromRawFd;
 use std::process::Command;
@@ -100,7 +101,7 @@ fn show_rofi_menu(players: &Vec<Player>) -> usize {
         .stdout(Stdio::piped())
         .spawn()
         .unwrap();
-    unsafe {
+    // unsafe {
         let selected = 0;
         let prompt = "Select Player";
         let rofi_cmd = Command::new("rofi")
@@ -117,7 +118,7 @@ fn show_rofi_menu(players: &Vec<Player>) -> usize {
                 "-me-accept-entry",
                 "MousePrimary",
             ])
-            .stdin(Stdio::from_raw_fd(echo_cmd.stdout.unwrap().as_raw_fd()))
+            .stdin(Stdio::from(echo_cmd.stdout.unwrap()))
             .output()
             .unwrap_or_else(|e| panic!("failed to execute process: {}", e));
         let selected_line = String::from_utf8(rofi_cmd.stdout)
@@ -127,7 +128,7 @@ fn show_rofi_menu(players: &Vec<Player>) -> usize {
             .unwrap();
         // println!("selected line {:?}", selected_line);
         usize::from(selected_line)
-    }
+    // }
 }
 
 fn pause(player: &Player) {
