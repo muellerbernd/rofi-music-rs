@@ -1,11 +1,12 @@
 use std::env;
-use std::env::Args;
-use std::os::fd::AsFd;
-use std::os::unix::io::AsRawFd;
-use std::os::unix::io::FromRawFd;
+// use std::env::Args;
+// use std::os::fd::AsFd;
+// use std::os::unix::io::AsRawFd;
+// use std::os::unix::io::FromRawFd;
 use std::process::exit;
 use std::process::Command;
 use std::process::Stdio;
+
 #[derive(Debug)]
 struct Player {
     name: String,
@@ -14,13 +15,13 @@ struct Player {
     is_playing: bool,
 }
 
-fn pause_player(player: Player) {
-    if player.is_playing {
-        println!("{:?}", player);
-    }
-
-    // os.popen(f"playerctl -p {playerlist.name(index)} pause").read()
-}
+// fn pause_player(player: Player) {
+//     if player.is_playing {
+//         println!("{:?}", player);
+//     }
+//
+//     // os.popen(f"playerctl -p {playerlist.name(index)} pause").read()
+// }
 
 fn player_is_playing(status: &str) -> bool {
     match status {
@@ -155,12 +156,12 @@ fn pause(player: &Player) {
         .expect("failed to execute process");
 }
 
-fn play(player: &Player) {
-    let _output = Command::new("playerctl")
-        .args(["-p", player.name.as_str(), "play"])
-        .output()
-        .expect("failed to execute process");
-}
+// fn play(player: &Player) {
+//     let _output = Command::new("playerctl")
+//         .args(["-p", player.name.as_str(), "play"])
+//         .output()
+//         .expect("failed to execute process");
+// }
 
 fn play_pause(player: &Player) {
     let _output = Command::new("playerctl")
@@ -194,8 +195,6 @@ fn prev_track(players: &Vec<Player>) {
             let mut cmd = Command::new("playerctl");
             cmd.args(["-p", player.name.as_str(), "previous"]);
             cmd.output().expect("failed to execute process");
-            cmd.output().expect("failed to execute process");
-            // println!("prev track {:?}", _output);
         }
     }
 }
@@ -219,7 +218,9 @@ fn show_rofi(looping: bool) {
             _ => (),
         }
     }
-    show_rofi(looping)
+    if looping {
+        show_rofi(looping);
+    }
 }
 fn main() {
     // handle cli parameter
