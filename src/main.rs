@@ -1,5 +1,9 @@
+use std::env;
+use std::env::Args;
+use std::os::fd::AsFd;
 use std::os::unix::io::AsRawFd;
 use std::os::unix::io::FromRawFd;
+use std::process::exit;
 use std::process::Command;
 use std::process::Stdio;
 #[derive(Debug)]
@@ -82,7 +86,7 @@ fn get_players(player_list: Vec<String>) -> Vec<Player> {
     }
     players
 }
-fn show_rofi_menu(players: &Vec<Player>) -> usize {
+fn show_rofi_menu(players: &Vec<Player>, looping: bool) -> usize {
     let mut options: Vec<String> = Vec::new();
     for player in players {
         options.push(String::from(format!(
@@ -94,32 +98,39 @@ fn show_rofi_menu(players: &Vec<Player>) -> usize {
     options.push(String::from("Pause All"));
     options.push(String::from("Next Track"));
     options.push(String::from("Prev Track"));
+    if looping {
+        options.push(String::from("quit"))
+    }
     // println!("options {:?}", options);
     let echo_cmd = Command::new("echo")
         .args([&options.join("\n")])
         .stdout(Stdio::piped())
         .spawn()
         .unwrap();
-    unsafe {
-        let selected = 0;
-        let prompt = "Select Player";
-        let rofi_cmd = Command::new("rofi")
-            .args([
-                "-dmenu",
-                "-p",
-                format!("{}", prompt).as_str(),
-                "-format",
-                "i",
-                "-selected-row",
-                format!("{}", selected).as_str(),
-                "-me-select-entry",
-                "",
-                "-me-accept-entry",
-                "MousePrimary",
-            ])
-            .stdin(Stdio::from_raw_fd(echo_cmd.stdout.unwrap().as_raw_fd()))
-            .output()
-            .unwrap_or_else(|e| panic!("failed to execute process: {}", e));
+    // unsafe {
+    let selected = 0;
+    let prompt = "Select Player";
+    let rofi_cmd = Command::new("rofi")
+        .args([
+            "-dmenu",
+            "-p",
+            format!("{}", prompt).as_str(),
+            "-format",
+            "i",
+            "-selected-row",
+            format!("{}", selected).as_str(),
+            "-me-select-entry",
+            "",
+            "-me-accept-entry",
+            "MousePrimary",
+        ])
+        .stdin(Stdio::from(echo_cmd.stdout.unwrap()))
+        .output()
+        .unwrap_or_else(|e| panic!("failed to execute process: {}", e));
+
+    // status == 1 if exit with escape or closing rofi, else it selected first entry and play_pased
+    // it
+    if rofi_cmd.status.success() {
         if rofi_cmd.stdout.len() > 0 {
             let selected_line = String::from_utf8(rofi_cmd.stdout)
                 .unwrap()
@@ -131,6 +142,8 @@ fn show_rofi_menu(players: &Vec<Player>) -> usize {
         } else {
             0
         }
+    } else {
+        exit(1);
     }
 }
 
@@ -186,10 +199,12 @@ fn prev_track(players: &Vec<Player>) {
         }
     }
 }
-fn main() {
+
+//
+fn show_rofi(looping: bool) {
     let player_list = get_playerlist();
     let players: Vec<Player> = get_players(player_list);
-    let selected_line = show_rofi_menu(&players);
+    let selected_line = show_rofi_menu(&players, looping);
     if selected_line < players.len() {
         play_pause(&players[selected_line]);
     } else {
@@ -200,7 +215,32 @@ fn main() {
             1 => pause_all(&players),
             2 => next_track(&players),
             3 => prev_track(&players),
+            4 => exit(0),
             _ => (),
         }
     }
+    show_rofi(looping)
+}
+fn main() {
+    // handle cli parameter
+    let looping = match env::args()
+        .last()
+        .expect("No command line arguments found!")
+        .as_str()
+    {
+        "continue" => true,
+        "help" | "-h" | "--help" => {
+            let programm_name = env::args()
+                .next()
+                .expect("No command line arguments found!");
+            println!("Usage: {programm_name} [OPTIONS] \n");
+            println!("Options:");
+            println!("      continue        : loops, until 'QUIT' is selected");
+            println!("      help            : prints this page");
+            exit(0);
+        }
+        _ => false,
+    };
+
+    show_rofi(looping);
 }
