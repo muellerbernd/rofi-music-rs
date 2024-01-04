@@ -7,32 +7,37 @@
       flake = false;
     };
   };
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-    ...
-  }:
-    flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = nixpkgs.outputs.legacyPackages.${system};
-    in {
-      packages.rofi_music_rs = pkgs.callPackage ./rofi-music.nix {
-        inherit (pkgs.darwin.apple_sdk.frameworks) Security SystemConfiguration AppKit;
-      };
-      packages.default = self.outputs.packages.${system}.rofi_music_rs;
+  outputs =
+    { self
+    , nixpkgs
+    , flake-utils
+    , ...
+    }:
+    flake-utils.lib.eachDefaultSystem
+      (system:
+      let
+        # pkgs = nixpkgs.outputs.legacyPackages.${system};
+        pkgs = import nixpkgs { inherit system; };
+        rofi-music-rs = pkgs.callPackage ./rofi-music.nix {
+          inherit (pkgs.darwin.apple_sdk.frameworks) Security SystemConfiguration AppKit;
+        };
+      in
+      {
+        packages.rofi-music-rs = rofi-music-rs;
+        packages.default = rofi-music-rs;
 
-      devShells.default = self.packages.${system}.default.overrideAttrs (super: {
-        nativeBuildInputs = with pkgs;
-          super.nativeBuildInputs
-          ++ [
-            cargo
-            clippy
-            rustfmt
-            rust-analyzer
-          ];
-        RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
-      });
-    })
+        devShells.default = self.packages.${system}.default.overrideAttrs (super: {
+          nativeBuildInputs = with pkgs;
+            super.nativeBuildInputs
+            ++ [
+              cargo
+              clippy
+              rustfmt
+              rust-analyzer
+            ];
+          RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
+        });
+      })
     // {
       overlays.default = final: prev: {
         inherit (self.packages.${final.system}) rofi-music-rs;
