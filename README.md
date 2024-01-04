@@ -28,6 +28,8 @@ and then include `rofi-music-rs` via
 rofi-music-rs = inputs.rofi-music-rs.packages."x86_64-linux".rofi_music_rs;
 ```
 
+or use the overlay
+
 ## How to use
 
 ### via CLI
