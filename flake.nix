@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     flake-utils.url = "github:numtide/flake-utils";
     flake-compat = {
       url = "github:edolstra/flake-compat";
@@ -26,7 +26,7 @@
         packages.rofi-music-rs = rofi-music-rs;
         packages.default = rofi-music-rs;
 
-        devShells.default = self.packages.${system}.default.overrideAttrs (super: {
+        devShells.default = self.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (super: {
           nativeBuildInputs = with pkgs;
             super.nativeBuildInputs
             ++ [
@@ -40,7 +40,7 @@
       })
     // {
       overlays.default = final: prev: {
-        inherit (self.packages.${final.system}) rofi-music-rs;
+        inherit (self.packages.${final.stdenv.hostPlatform.system}) rofi-music-rs;
       };
     };
 }
